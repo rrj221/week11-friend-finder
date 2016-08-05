@@ -23,59 +23,75 @@
 	color: #26a69a;
 }
 
+.home {
+	display: inline-block;
+	float: left;
+}
+
+.message {
+	color: red;
+	visibility: hidden;
+}
+
 
 </style>
 
 
 <body>
+	<a class='home' href='/'><img class='home' src='http://findicons.com/files/icons/1268/iphonica_system/128/home.png'></a>
 	<h1>Survey for you</h1>
+
 	<div class='container'>
 
-	<div class="row">
-	    <form action='#' id='survey' class="col s12">
-	        <div class="row">
-		        <div class="input-field col s6">
-		            <input placeholder="Your Name" id="name" type="text" name='name' class='validate'>
-		            <label for="name">Name (Required)</label>
-		        </div>
-		        <div class="input-field col s6">
-		            <input id="photoURL" type="text" name='image' class='validate'>
-		            <label for="last_name">Link to photo (Required)</label>
-		        </div>
+		<div class="row">
+		    <form action='#' id='survey' class="col s12">
+		        <div class="row">
+		        	<div class='message'>Please fill out the entire form</div>
+			        <div class="input-field col s6">
+			            <input placeholder="Your Name" id="name" type="text" name='name' class='validate'>
+			            <label for="name">Name (Required)</label>
+			        </div>
+			        <div class="input-field col s6">
+			            <input id="photoURL" type="text" name='image' class='validate'>
+			            <label for="last_name">Link to photo (Required)</label>
+			        </div>
 
-		        <br></br>
-		        <br></br>
-		        <br></br>
+			        <br></br>
+			        <br></br>
+			        <br></br>
 
 
-		        <div id='questionsContainer'>
+			        <div id='questionsContainer'>
 
+					</div>
 				</div>
-			</div>
 
-			<button class="btn waves-effect waves-light" type="submit" name="action">Submit
-    			<i class="material-icons right">send</i>
-  			</button>
-	    </form>
-	</div>
+				<button class="btn waves-effect waves-light" type="submit" name="action">Submit
+	    			<i class="material-icons right">send</i>
+	  			</button>
+		    </form>
+		</div>
 
-	<div class='row'>
+		<div class='row'>
 
-	  	<!-- Modal Trigger -->
- 		<!-- <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a> -->
+		    	<!-- Modal Trigger -->
+	 		    <!-- <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a> -->
 
-		  <!-- Modal Structure -->
-		  	<div id="modal1" class="modal">
-		    <div class="modal-content">
-		      	<h4>New Friend</h4>
-		      	<p>Our fancy algarithm has determined that this person is your closest match.</p>
-		    </div>
-		    <div class="modal-footer">
-		    	<a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Thanks</a>
-		    	<a href="#!" class=" modal-action modal-close waves-effect waves-red btn-flat">I'm not interested</a>
-		    </div>
-		  </div>
-
+			    <!-- Modal Structure -->
+			    <div id="modal1" class="modal">
+			    <div class="modal-content">
+			      	<h4>New Friend</h4>
+			      	<p>Our fancy algarithm has determined that this person is your closest match.</p>
+			      	<div class='response'>
+			      		
+			      	</div>
+			    </div>
+			    	<div class="modal-footer">
+			    		<a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Thanks</a>
+			    		<a href="#!" class=" modal-action modal-close waves-effect waves-red btn-flat">I'm not interested</a>
+			    	</div>
+			    </div>
+		</div>
 	</div>
 
 <script type="text/javascript">
@@ -176,6 +192,21 @@ $(document).ready(function() {
 //AJAX////////////////
 
 	$('#survey').on('submit', function () {
+		console.log('here', $('#survey').serializeArray());
+
+		formSubmissionArray = $('#survey').serializeArray();
+
+		//if you don't fill out the form correctly you'll break it
+		if (formSubmissionArray.length < 12 || 
+			(formSubmissionArray[0].value === '' || formSubmissionArray[1].value === '')) {
+				// alert('fill out the entire form please!');
+				$('.message').css('visibility', 'visible');
+				$("html, body").animate({ scrollTop: 0 }, "slow");
+				return false;
+		}
+
+		$('.message').css('visibility', 'hidden');
+
 		var name = $('#name').val();
 		var link = $('#photoURL').val();
 		var answers = [];
@@ -188,7 +219,7 @@ $(document).ready(function() {
 		} 
 		console.log(answers);
 
-		console.log($('#survey').serializeArray());  //this is cool but not necessary
+		console.log($('#survey').serializeArray());  //this is cool but I didn't end up using it
 
 		var userInfo = {
 			name: name,
@@ -204,10 +235,24 @@ $(document).ready(function() {
 
 			console.log(data);
 
+			var matchName = $('<div>', {
+				class: 'matchName',
+				text: data.name
+			}).appendTo('.response');
+
+			var matchPhoto = $('<img>', {
+				class: 'matchPhoto',
+				src: data.link
+			}).appendTo('.response');
+
+			$('#modal1').openModal();
 		});
 
-		//need to put this in callback of AJAX
-		$('#modal1').openModal();
+		//clears out last friend and scroll to top
+		$('.modal-action').on('click', function () {
+			$('.response').empty();
+			$("html, body").animate({ scrollTop: 0 }, "slow");
+		});
 
 		return false;
 	})
